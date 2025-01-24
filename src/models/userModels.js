@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["basic", "premium", "vip"],
     default: "basic",
+    lowercase: true,
   },
   favoriteActivities: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
 });

@@ -23,17 +23,30 @@ export const createUser = async (req, res) => {
   }
 };
 
+// export const getUsers = async (req, res) => {
+//   try {
+//     const users = await User.find().populate("favoriteActivities");
+//     if (users.length === 0) {
+//       return res.status(204).json({ message: "There are no users" });
+//     }
+//     res.status(200).json(users);
+//   } catch (error) {
+//     return res.status(500).json({ message: "Internal server error", error });
+//   }
+// };
+
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find().populate("favoriteActivities");
+    const users = await User.find(); // Obtiene todos los usuarios
     if (users.length === 0) {
-      return res.status(204).json({ message: "There are no users" });
+      return res.status(204).json({ message: "There are no users" }); // Si no hay usuarios
     }
-    res.status(200).json(users);
+    res.status(200).json(users); // Devuelve los usuarios encontrados
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error", error });
+    return res.status(500).json({ message: "Internal server error", error }); // Manejo de errores
   }
 };
+
 
 export const deleteUser = async (req, res) => {
   try {
