@@ -36,6 +36,7 @@ import { PORT } from "./config.js";
 import { connectDB } from "./db.js";
 import userRoute from "./routes/userRoute.js"; // Importar rutas de usuario
 import productRoute from "./routes/productRoute.js"; // Importar rutas de productos
+import categoryRoute from "./routes/categoryRoute.js";
 
 const app = express();
 
@@ -50,6 +51,7 @@ connectDB();
 // Rutas
 app.use("/api/user", userRoute); // Registrar rutas de usuario
 app.use("/api/products", productRoute); // Registrar rutas de productos
+app.use("/api/category", categoryRoute); //Registrar rutas de categorias
 
 // Ruta base para verificar que el servidor funciona
 app.get("/", (req, res) => {

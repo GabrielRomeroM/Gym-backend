@@ -15,7 +15,8 @@ const productSchema = new mongoose.Schema({
   size: {
     type: String,
     required: [true, "The size field is required"],
-    enum: ["XS", "S", "M", "L", "XL", "XXL"], // Talles predefinidos
+    enum: ["xs", "s", "m", "l", "xl", "xxl"], // Talles predefinidos
+    lowercase: true,
   },
 
   color: {
