@@ -1,4 +1,4 @@
-import Category from "../models/categoryModel.js"; // Asegúrate de tener el modelo creado
+import Category from "../models/categoryModel.js";
 
 // Obtener todas las categorías
 export const getCategories = async (req, res) => {
@@ -13,12 +13,10 @@ export const getCategories = async (req, res) => {
   }
 };
 
-// Crear una nueva categoría
+// Crear una nueva categoria
 export const createCategory = async (req, res) => {
   try {
     const { name } = req.body;
-
-    // Verificar si ya existe una categoría con el mismo nombre
     const categoryExists = await Category.findOne({ name: name.toLowerCase() });
     if (categoryExists) {
       return res
@@ -28,7 +26,7 @@ export const createCategory = async (req, res) => {
 
     const newCategory = new Category({
       ...req.body,
-      name: name.toLowerCase(), // Guardar el nombre en minúsculas para evitar duplicados
+      name: name.toLowerCase(),
     });
 
     const savedCategory = await newCategory.save();
@@ -42,7 +40,6 @@ export const createCategory = async (req, res) => {
 export const getCategoryById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
@@ -58,7 +55,6 @@ export const getCategoryById = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-
     const categoryExists = await Category.findById(id);
     if (!categoryExists) {
       return res.status(404).json({ message: "Category not found" });
@@ -78,7 +74,6 @@ export const updateCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
-
     const categoryExists = await Category.findById(id);
     if (!categoryExists) {
       return res.status(404).json({ message: "Category not found" });
@@ -93,11 +88,10 @@ export const deleteCategory = async (req, res) => {
   }
 };
 
-// Cambiar el estado de una categoría (activar/desactivar)
+// Cambiar el estado de una categoría (activar/desactivar) REVISAR 
 export const toggleCategoryStatus = async (req, res) => {
   try {
     const { id } = req.params;
-
     const category = await Category.findById(id);
     if (!category) {
       return res.status(404).json({ message: "Category not found" });

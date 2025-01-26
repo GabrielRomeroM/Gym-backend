@@ -11,7 +11,7 @@ import {
 // Crear enrutador
 const productRoute = Router();
 
-// Rutas para productos
+// Endpoints
 productRoute.get("/get", getProducts); // Obtener todos los productos
 productRoute.post("/create", createProduct); // Crear un nuevo producto
 productRoute.get("/get-by-id/:id", findProductById); // Buscar producto por ID

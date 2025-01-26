@@ -15,7 +15,7 @@ const categorySchema = new mongoose.Schema({
     lowercase: true,
   },
   averageDuration: {
-    type: Number, // En minutos
+    type: Number,
     default: 60,
     min: [10, "Duration should be at least 10 minutes"],
   },
