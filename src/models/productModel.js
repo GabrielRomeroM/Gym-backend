@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Esquema del producto para ropa
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -15,7 +14,7 @@ const productSchema = new mongoose.Schema({
   size: {
     type: String,
     required: [true, "The size field is required"],
-    enum: ["xs", "s", "m", "l", "xl", "xxl"], // Talles predefinidos
+    enum: ["xs", "s", "m", "l", "xl", "xxl"],
     lowercase: true,
   },
 
@@ -42,8 +41,9 @@ const productSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ["AVAILABLE", "OUT OF STOCK", "DISCONTINUED"], // Estados predefinidos
+    enum: ["available", "out of stock" ,"discontinued"],
     default: "AVAILABLE",
+    lowercase: true,
   },
 
   creationDate: {
@@ -53,13 +53,14 @@ const productSchema = new mongoose.Schema({
 
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "category", // Referencia al modelo de categorías
-    required: false, // Opcional por si no quieres usar categorías ahora
+    ref: "category",
+    required: false,
   },
 });
 
 // Métodos
 // Reducir stock
+// Verify
 productSchema.methods.decreaseStock = function (amount) {
   if (this.stock < amount) {
     throw new Error("Not enough stock available");
@@ -68,12 +69,10 @@ productSchema.methods.decreaseStock = function (amount) {
   return this.save();
 };
 
-// Virtual para el precio final con impuestos si lo necesitas en el futuro
 productSchema.virtual("priceWithTax").get(function () {
   return this.price * 1.21; // 21% de IVA
 });
 
-// Habilitar valores virtuales en JSON y objetos
 productSchema.set("toJSON", { virtuals: true });
 productSchema.set("toObject", { virtuals: true });
 

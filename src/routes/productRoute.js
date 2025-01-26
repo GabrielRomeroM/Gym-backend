@@ -8,6 +8,7 @@ import {
   updateProduct,
 } from "../controllers/productController.js";
 
+// Crear enrutador
 const productRoute = Router();
 
 // Rutas para productos

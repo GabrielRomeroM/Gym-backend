@@ -3,7 +3,7 @@ import Product from "../models/productModel.js";
 // Obtener todos los productos
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("category"); // Incluye datos de la categoría si existe
+    const products = await Product.find().populate("category");
     if (products.length === 0) {
       return res.status(400).json({ message: "No products found" });
     }
