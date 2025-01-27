@@ -91,7 +91,7 @@ export const validate = async (req, res) => {
         userEmail: userFound.email,
       };
 
-      const token = jwt.sign(payload, process.env.JWT_SECRET || "secret", {
+      const token = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
 
