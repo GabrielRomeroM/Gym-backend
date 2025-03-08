@@ -2,13 +2,13 @@ import User from "../models/userModels.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-
 // Crear usuario
 export const createUser = async (req, res) => {
   try {
     const userData = new User(req.body);
     const { email } = userData;
 
+    // Verificar si el usuario ya existe
     const userExist = await User.findOne({ email });
     if (userExist) {
       return res
@@ -16,90 +16,98 @@ export const createUser = async (req, res) => {
         .json({ message: `User with email: ${email} already exists` });
     }
 
+    // Guardar el usuario en la base de datos
     await userData.save();
-    res.status(201).json({ message: "User created", user: userData });
+
+    // Respuesta personalizada sin datos sensibles
+    res.status(201).json({
+      message: "User created successfully",
+      userId: userData._id, // Opcional: incluir el ID del usuario
+      userMembership: userData.membership,
+    });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
-// Obtiene todos los usuarios
+// Obtener todos los usuarios
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await User.find().select("-password"); // Excluir la contraseña
     if (users.length === 0) {
-      return res.status(204).json({ message: "There are no users" }); 
+      return res.status(204).json({ message: "There are no users" });
     }
     res.status(200).json(users);
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
 // Borrar usuario
 export const deleteUser = async (req, res) => {
   try {
-    const _id = req.params.id;
-    const userExist = await User.findOne({ _id });
+    const { id } = req.params;
 
-    if (!userExist) {
+    // Buscar y eliminar el usuario en una sola operación
+    const deletedUser = await User.findOneAndDelete({ _id: id });
+    if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    await User.findByIdAndDelete(_id);
-    return res.status(200).json({ message: "User deleted successfully" });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
 // Actualizar usuario
 export const updateUser = async (req, res) => {
   try {
-    const _id = req.params.id;
-    const userExist = await User.findOne({ _id });
-    if (!userExist) {
+    const { id } = req.params;
+
+    // Buscar y actualizar el usuario
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, {
+      new: true,
+    }).select("-password"); // Excluir la contraseña
+
+    if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const updatedUser = await User.findByIdAndUpdate({ _id }, req.body, {
-      new: true,
-    });
-    return res.status(200).json(updatedUser);
+    res.status(200).json(updatedUser);
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
-
 
 // Validar login
 export const validate = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Validar campos obligatorios
     if (!(email && password)) {
-      return res.status(400).json({ message: "There is a missing field" });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
+    // Buscar el usuario por email
     const userFound = await User.findOne({ email });
-    if (!userFound) {
-      return res.status(400).json({ message: "Email or password incorrect" });
+    if (!userFound || !bcrypt.compareSync(password, userFound.password)) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    if (bcrypt.compareSync(password, userFound.password)) {
-      const payload = {
-        userId: userFound._id,
-        userEmail: userFound.email,
-      };
+    // Generar token JWT
+    const payload = {
+      userId: userFound._id,
+      userEmail: userFound.email,
+    };
 
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "15m", // Token de corta duración
+    });
 
-      return res.status(200).json({ message: "Logged in", token });
-    } else {
-      return res.status(400).json({ message: "Email or password incorrect" });
-    }
+    res.status(200).json({ message: "Logged in", token });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };

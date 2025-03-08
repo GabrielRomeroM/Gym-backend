@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import { isGoodPassword } from "../utils/validators.js";
 import bcrypt from "bcrypt";
 
-const userSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const userSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -37,7 +39,7 @@ const userSchema = new mongoose.Schema({
   },
   registrationDate: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   password: {
     type: String,
@@ -56,14 +58,26 @@ const userSchema = new mongoose.Schema({
     default: "basic",
     lowercase: true,
   },
-  favoriteActivities: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+  favoriteActivities: [{ type: Schema.Types.ObjectId, ref: "Category" }],
 });
 
-userSchema.pre("save", function (next) {
+userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    this.password = bcrypt.hashSync(this.password, 10);
+    try {
+      this.password = await bcrypt.hash(this.password, 10);
+    } catch (error) {
+      return next(error);
+    }
   }
   next();
 });
+
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.password;
+  return user;
+};
+
+userSchema.index({ email: 1 }, { unique: true });
 
 export default mongoose.model("User", userSchema);
