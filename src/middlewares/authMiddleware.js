@@ -1,6 +1,7 @@
-import { verifyToken } from "../utils/verifyToken.js";
+import jwt from "jsonwebtoken";
 
 export const authenticate = (req, res, next) => {
+  // Extraer el token del encabezado "Authorization"
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
@@ -8,7 +9,8 @@ export const authenticate = (req, res, next) => {
   }
 
   try {
-    const decoded = verifyToken(token); // Usa la función de utils/verifyToken.js
+    // Verificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded; // Añade el usuario decodificado al objeto `req`
     next();
   } catch (error) {

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User from "../models/userModels.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -46,7 +47,12 @@ export const getUsers = async (req, res) => {
 // Borrar usuario
 export const deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // Extrae el id correctamente
+
+    // Verifica si el id es un ObjectId válido
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
 
     // Buscar y eliminar el usuario en una sola operación
     const deletedUser = await User.findOneAndDelete({ _id: id });
@@ -103,7 +109,7 @@ export const validate = async (req, res) => {
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "15m", // Token de corta duración
+      expiresIn: "1h", // Token de corta duración
     });
 
     res.status(200).json({ message: "Logged in", token });
